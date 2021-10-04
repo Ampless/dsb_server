@@ -1,17 +1,14 @@
-// TODO: headers
 import 'package:shelf/shelf.dart';
 
-// Cache-Control: no-cache
-// Pragma: no-cache
-// Content-Type: application/json; charset=utf-8
-// Expires: -1
-// Server: Microsoft-IIS/8.5
-// X-AspNet-Version: 4.0.30319
-// X-Powered-By: ASP.NET
-// Date: Mon, 04 Oct 2021 02:13:40 GMT
-// Content-Length: 109
-Map<String, String> _headers(String? contentType) =>
-    {'Content-Type': contentType ?? 'application/json'};
+Map<String, String> _headers(String? contentType) => {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Content-Type': (contentType ?? 'application/json') + '; charset=utf-8',
+      'Expires': '-1',
+      'Server': 'Microsoft-IIS/8.5',
+      'X-AspNet-Version': '4.0.30319',
+      'X-Powered-By': 'ASP.NET',
+    };
 
 Response _notFound(String body, [String? contentType]) =>
     Response.notFound(body, headers: _headers(contentType));
