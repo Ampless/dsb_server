@@ -1,0 +1,15 @@
+name: dsb_server
+description: This package allows you to crawl DSB's "Mobile API" and parse Untis's HTML.
+version: 0.0.1
+homepage: https://github.com/Ampless/dsb_server
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+  shelf: ^1.1.4
+
+dev_dependencies:
+  dsbuntis: ^6.1.0
+  pedantic: ^1.11.0
+  test: ^1.17.7
