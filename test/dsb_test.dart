@@ -11,8 +11,8 @@ const token = '13ccccbb-e6a8-466a-addc-00bba830c6cf';
 
 void main() => serve(
       dsbHandler(
-          generateAuthid: (_, __, ___, ____, _____) => token,
-          getContent: (path, authid) =>
+          generateAuthid: (_, __, ___, ____, _____) async => token,
+          getContent: (path, authid) async =>
               path == 'dsbtimetables' && authid == token ? coolJson : null),
       InternetAddress.loopbackIPv6,
       0,

@@ -1,3 +1,7 @@
+## 0.1.0
+
+- Switched to using `async` functions using `Future`s
+
 ## 0.0.2
 
 - Added changelog
