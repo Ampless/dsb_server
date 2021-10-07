@@ -1,3 +1,8 @@
+## 0.1.1
+
+- Added `customHeaders` for sending custom HTTP headers
+- Switched from `pedantic` to `lints`
+
 ## 0.1.0
 
 - Switched to using `async` functions using `Future`s
