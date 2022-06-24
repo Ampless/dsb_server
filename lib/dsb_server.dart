@@ -1,23 +1,31 @@
+import 'dart:convert';
+
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:shelf/shelf.dart';
 
-Response Function(int, String, [String?]) _resp(
+String httpDate() =>
+    DateFormat('EEE, dd MMM y HH:mm:ss GMT', 'C').format(DateTime.now());
+
+Response Function(int, String, [String]) _resp(
         Map<String, String> customHeaders) =>
-    (code, body, [contentType]) => Response(code,
+    (code, body, [contentType = 'application/json']) => Response(code,
         body: body,
         headers: {
+          'Allow': 'GET',
           'Cache-Control': 'no-cache',
-          'Content-Type':
-              (contentType ?? 'application/json') + '; charset=utf-8',
+          'Content-Type': '$contentType; charset=utf-8',
+          'Date': httpDate(),
           'Pragma': 'no-cache',
           'Expires': '-1',
-          'Server': 'Microsoft-IIS/8.5',
+          'Server': 'Microsoft-IIS/10.0',
           'X-AspNet-Version': '4.0.30319',
           'X-Powered-By': 'ASP.NET',
         }..addAll(customHeaders));
 
 Future<Response> Function(Request) dsbHandler({
   String index =
-      '<html><head><title>Die Ressource kann nicht gefunden werden.</title><meta name="viewport" content="width=device-width" /><style> body{font-family:Verdana;font-weight:normal;font-size:.7em;color:black;} p{font-family:Verdana;font-weight:normal;color:black;margin-top:-5px} b{font-family:Verdana;font-weight:bold;color:black;margin-top:-5px} H1{font-family:Verdana;font-weight:normal;font-size:18pt;color:red } H2{font-family:Verdana;font-weight:normal;font-size:14pt;color:maroon } pre{font-family:Consolas,"Lucida Console",Monospace;font-size:11pt;margin:0;padding:0.5em;line-height:14pt} .marker {font-weight: bold; color: black;text-decoration: none;} .version {color: gray;} .error {margin-bottom: 10px;} .expandable { text-decoration:underline; font-weight:bold; color:navy; cursor:pointer; } @media screen and (max-width: 639px) { pre { width: 440px; overflow: auto; white-space: pre-wrap; word-wrap: break-word; } } @media screen and (max-width: 479px){pre{width:280px;}} </style></head><body bgcolor="white"><span><H1>Serverfehler in der Anwendung /.<hr width=100% size=1 color=silver></H1><h2> <i>Die Ressource kann nicht gefunden werden.</i> </h2></span><font face="Arial, Helvetica, Geneva, SunSans-Regular, sans-serif "><b> Beschreibung: </b>HTTP 404. Die gesuchte Ressource oder eine ihrer Abh&#228;ngigkeiten wurde m&#246;glicherweise entfernt, umbenannt oder ist vor&#252;bergehend nicht verf&#252;gbar. &#220;berpr&#252;fen Sie folgende URL, und stellen Sie sicher, dass sie richtig geschrieben wurde.<br><br><b> Angeforderter URL: </b>/PATH/<br><br></font></body></html>',
+      '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd"><HTML><HEAD><TITLE>Not Found</TITLE><META HTTP-EQUIV="Content-Type" Content="text/html; charset=us-ascii"></HEAD><BODY><h2>Not Found</h2><hr><p>HTTP Error 404. The requested resource is not found.</p></BODY></HTML>',
   Map<String, String> customHeaders = const {},
   required Future<String> Function(String user, String pass, String bundleid,
           String appversion, String osversion)
@@ -25,12 +33,11 @@ Future<Response> Function(Request) dsbHandler({
   required Future<String?> Function(String endpoint, String authid) getContent,
 }) =>
     (req) async {
+      await initializeDateFormatting('C');
       final resp = _resp(customHeaders);
       final path = req.url.path;
       final query = req.url.queryParameters;
-      if (path.isEmpty) {
-        return resp(404, index.replaceAll('PATH/', req.url.path), 'text/html');
-      } else if (path == 'authid') {
+      if (path == 'authid') {
         if ([
           'bundleid',
           'appversion',
@@ -44,10 +51,17 @@ Future<Response> Function(Request) dsbHandler({
           return resp(200, '"$aid"');
         }
         // TODO: actually figure out which endpoints exist
-      } else if (query.containsKey('authid') && path.startsWith('dsb')) {
+      } else if (query.containsKey('authid')) {
         final content = await getContent(path, query['authid']!);
         if (content != null) return resp(200, content);
       }
-      return resp(404,
-          '{"Message":"No HTTP resource was found that matches the request URI \'${req.requestedUri}\'."}');
+      return Response(404,
+          body: index,
+          headers: {
+            'Content-Type': 'text/html; charset=us-ascii',
+            'Server': 'Microsoft-HTTPAPI/2.0',
+            'Date': httpDate(),
+            'Connection': 'close'
+          },
+          encoding: ascii);
     };

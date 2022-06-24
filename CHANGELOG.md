@@ -1,3 +1,8 @@
+## 0.1.2
+
+- Changed the 404 behavior to be more compliant with some changes that
+  heinekingmedia made
+
 ## 0.1.1
 
 - Added `customHeaders` for sending custom HTTP headers
