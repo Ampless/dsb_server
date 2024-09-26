@@ -1,16 +1,16 @@
 name: dsb_server
 description: This package allows you to trivially create a DSB/DSBMobile server.
-version: 0.1.2
+version: 0.1.3
 homepage: https://github.com/Ampless/dsb_server
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: ^3.0.0
 
 dependencies:
-  intl: ^0.17.0
+  intl: ^0.19.0
   shelf: ^1.2.0
 
 dev_dependencies:
-  dsbuntis: ^8.1.0-alpha.0
-  lints: ^2.0.0
-  test: ^1.18.2
+  dsbuntis: ^8.1.0-alpha.3
+  lints: ^4.0.0
+  test: ^1.24.0

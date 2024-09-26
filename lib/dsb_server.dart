@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:shelf/shelf.dart';
@@ -7,22 +5,27 @@ import 'package:shelf/shelf.dart';
 String httpDate() =>
     DateFormat('EEE, dd MMM y HH:mm:ss GMT', 'C').format(DateTime.now());
 
-Response Function(int, String, [String]) _resp(
+Response Function(int, String, [bool, String]) _resp(
         Map<String, String> customHeaders) =>
-    (code, body, [contentType = 'application/json']) => Response(code,
-        body: body,
-        headers: {
+    (code, body, [private = false, contentType = 'application/json']) =>
+        Response(code, body: body, headers: {
           'Allow': 'GET',
-          'Cache-Control': 'no-cache',
+          'Cache-Control': '${private ? 'private' : 'no-cache'},no-cache',
           'Content-Type': '$contentType; charset=utf-8',
           'Date': httpDate(),
-          'Pragma': 'no-cache',
-          'Expires': '-1',
+          if (!private) 'Pragma': 'no-cache',
+          if (!private) 'Expires': '-1',
           'Server': 'Microsoft-IIS/10.0',
           'X-AspNet-Version': '4.0.30319',
           'X-Powered-By': 'ASP.NET',
-        }..addAll(customHeaders));
+          ...customHeaders
+        });
 
+/// `shelf` handler for a DSB server.
+/// [index]: HTML to return for 404s.
+/// [customHeaders]: Custom headers to return with every response.
+/// [generateAuthid]: <https://github.com/Ampless/Adsignificamus/blob/master/README.md#auth>
+/// [getContent]: <https://github.com/Ampless/Adsignificamus/blob/master/README.md#plans-news-documents->
 Future<Response> Function(Request) dsbHandler({
   String index =
       '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd"><HTML><HEAD><TITLE>Not Found</TITLE><META HTTP-EQUIV="Content-Type" Content="text/html; charset=us-ascii"></HEAD><BODY><h2>Not Found</h2><hr><p>HTTP Error 404. The requested resource is not found.</p></BODY></HTML>',
@@ -55,13 +58,5 @@ Future<Response> Function(Request) dsbHandler({
         final content = await getContent(path, query['authid']!);
         if (content != null) return resp(200, content);
       }
-      return Response(404,
-          body: index,
-          headers: {
-            'Content-Type': 'text/html; charset=us-ascii',
-            'Server': 'Microsoft-HTTPAPI/2.0',
-            'Date': httpDate(),
-            'Connection': 'close'
-          },
-          encoding: ascii);
+      return resp(404, index, true, "text/html");
     };

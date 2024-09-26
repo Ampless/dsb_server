@@ -1,3 +1,10 @@
+## 0.1.3
+
+- heinekingmedia changed the 404 behavior again
+- better documentation
+- dart 3
+- lints 4
+
 ## 0.1.2
 
 - Changed the 404 behavior to be more compliant with some changes that
